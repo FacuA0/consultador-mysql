@@ -1,32 +1,39 @@
 let mysql = require("mysql");
 let process = require("process");
+let express = require("express");
 
-if (process.argv.length < 4) {
-    console.error(new Error("Not enough arguments."));
-    process.exit(1);
-}
+let app = express();
 
 let options = {
     host: "localhost",
     user: "root",
-    password: "",
-    database: process.argv[2]
-};
+    password: ""
+}
 
-let connection = mysql.createConnection(options);
+app.get("/", (req, res) => {
+    let connection = mysql.createConnection(options);
+    connection.connect();
+    connection.query("SHOW DATABASES;", (error, results, fields) => {
+        if (error) {
+            console.log("Error while querying.");
+            res.send("Error with query.");
+            return;
+        }
 
-connection.connect(err => {
-    if (err) console.error(err); 
-    else console.log("Connection established!");
+        let response = "<table><caption>Databases</caption><th>Databases</th>";
+        for (row of results) {
+            let fieldName;
+            for (key in row) {
+                fieldName = key;
+            }
+
+            response += "<tr><td>" + row[fieldName] + "</td></tr>";
+        }
+        response += "</table>";
+
+        res.send(response);
+    });
+    connection.end();
 });
 
-connection.query("SELECT * FROM " + process.argv[3] + " WHERE ", (error, results, fields) => {
-    if (error) {
-        console.error(error);
-        return;
-    }
-
-    console.table(results);
-});
-
-connection.end();
+app.listen(9040);
