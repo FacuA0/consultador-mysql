@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Bases de datos MySQL</title>
+    </head>
+    <body>
+        <h1>Bases de datos MySQL</h1>
+        <p>Escribe una consulta.</p>
+        <p id="info-database">Ninguna base de datos seleccionada.</p>
+        <input type="text" id="campo">
+        <button onclick="consultar()">Consultar</button>
+
+        <p>Resultado: </p>
+        <div id="resultado">
+            <p id="error" style="color: #A00; display: none;"></p>
+            <table border="2" id="tabla" style="display: none;"></table>
+        </div>
+
+        <script>
+            let database = "";
+
+            let inputCampo = document.getElementById("campo");
+            let infoDatabase = document.getElementById("info-database");
+            let divResultado = document.getElementById("resultado");
+            let resError = document.getElementById("error");
+            let resTabla = document.getElementById("tabla");
+
+            function consultar() {  
+                let consulta = inputCampo.value;
+
+                // Establecer base de datos operativa.
+                if (consulta.toUpperCase().startsWith("USE ") && consulta.endsWith(";")) {
+                    database = consulta.toLowerCase().slice(4, -1);
+
+                    if (database != "")
+                        infoDatabase.innerHTML = "Base de datos: <b>" + database + "</b>";
+                    else 
+                        infoDatabase.innerHTML = "Ninguna base de datos seleccionada.";
+                    return;
+                }
+
+                // Dirección de consulta. Si hay base de datos seleccionada, incluirla aparte.
+                let direccion = "/query?sql=" + consulta + (database != "" ? "&database=" + database : "");
+
+                fetch(direccion)
+                .then(res => res.json())
+                .then(json => {
+                    if (!json.ok) {
+                        resError.textContent = "Error de consulta: " + json.error;
+                        resError.style.display = "block";
+                        resTabla.style.display = "none";
+                        return;
+                    }
+
+                    resTabla.innerHTML = "";
+
+                    let tr1 = document.createElement("tr");
+                    for (campo of json.campos) {
+                        let th = document.createElement("th");
+                        th.textContent = campo;
+                        tr1.appendChild(th);
+                    }
+                    resTabla.appendChild(tr1);
+                    
+                    for (fila of json.registros) {
+                        let tr = document.createElement("tr");
+                        for (valor of fila) {
+                            let td = document.createElement("td");
+                            td.textContent = valor;
+                            tr.appendChild(td);
+                        }
+                        resTabla.appendChild(tr);
+                    }
+                    resTabla.style.display = "table";
+                    resError.style.display = "none";
+                })
+                .catch(err => {
+                    resError.textContent = "Error de conexión: " + err.toString();
+                    resError.style.display = "block";
+                    resTabla.style.display = "none";
+                });
+            }
+        </script>
+    </body>
+</html>

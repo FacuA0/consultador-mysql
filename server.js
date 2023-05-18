@@ -1,7 +1,7 @@
 let mysql = require("mysql");
 let process = require("process");
+let fs = require("fs");
 let http = require("http");
-
 
 let options = {
     host: "localhost",
@@ -10,22 +10,97 @@ let options = {
 }
 
 let server = http.createServer((req, res) => {
+    let url = new URL(req.url, "http://example.com");
+    let path = url.pathname;
+    if (path == "/") {
+        res.writeHead(200);
+        res.end(fs.readFileSync("principal.html"));
+    }
+    else if (path == "/query") {
+        let consulta = url.searchParams.get("sql");
+        if (consulta == null) {
+            res.writeHead(400);
+            res.end("Error: Se debe especificar una consulta.");
+            return;
+        }
 
-    if (req.url == "/") {
-        showDatabases(res);
+        let database = url.searchParams.get("database");
+
+        queryDatabase(res, consulta, database);
+    }
+    else if (path.startsWith("/databases")) {
+        if (path == "/databases/" || path == "/databases") {
+            showDatabases(res);
+        }
+        else if (path.startsWith("/databases/")) {
+            let database = path.slice(11);
+            if (database.indexOf("/") != -1) 
+                database = database.slice(0, database.indexOf("/"));
+
+            showTablesInDatabase(res, database);
+        }
+        else {
+            res.writeHead(404);
+            res.end("Error: Forma incorrecta de acceder a /databases.");
+        }
     }
     else {
-        showTablesInDatabase(res, req.url.slice(1));
+        res.writeHead(404);
+        res.end("Error: URL inválida.")
     }
     
 });
 
 server.listen(9040);
 
+function queryDatabase(res, consulta, database) {
+
+    let conexion;
+    if (database != null) 
+        conexion = mysql.createConnection(Object.assign({}, options, {database}));
+    else 
+        conexion = mysql.createConnection(options);
+
+    conexion.connect();
+
+    conexion.query(consulta, (error, results, fields) => {
+        if (error) {
+            let resultado = {
+                ok: false,
+                error: error.toString()
+            };
+
+            res.writeHead(400, {"Content-Type": "application/json"});
+            res.end(JSON.stringify(resultado));
+            return;
+        }
+
+        let campos = fields.map(campo => campo.name);
+        let registros = results.map(registro => {
+            let valores = [];
+            for (clave in registro) {
+                valores[campos.indexOf(clave)] = registro[clave];
+            }
+            return valores;
+        })
+
+        let resultado = {
+            ok: true,
+            campos: campos,
+            registros: registros
+        };
+
+        res.writeHead(200, {"Content-Type": "application/json"});
+        res.end(JSON.stringify(resultado));
+    });
+
+    conexion.end();
+}
+
 function showDatabases(res) {
-    let connection = mysql.createConnection(options);
-    connection.connect();
-    connection.query("SHOW DATABASES;", (error, results, fields) => {
+    let conexion = mysql.createConnection(options);
+    conexion.connect();
+    conexion.query("SHOW DATABASES;", (error, results, fields) => {
         if (error) {
             console.log("Error while querying.");
             res.end("Error with query.");
@@ -40,19 +115,19 @@ function showDatabases(res) {
             }
 
             let field = row[fieldName];
-            res.write("<tr><td><a href='./" + field + "'>" + field + "</a></td></tr>");
+            res.write("<tr><td><a href='/databases/" + field + "'>" + field + "</a></td></tr>");
         }
         res.write("</table>");
 
         res.end();
     });
-    connection.end();
+    conexion.end();
 }
 
 function showTablesInDatabase(res, database) {
-    let connection = mysql.createConnection(Object.assign({}, options, {database}));
-    connection.connect();
-    connection.query("SHOW TABLES;", (error, results, fields) => {
+    let conexion = mysql.createConnection(Object.assign({}, options, {database}));
+    conexion.connect();
+    conexion.query("SHOW TABLES;", (error, results, fields) => {
         if (error) {
             console.log("Error while querying.");
             res.end("Error with query.");
@@ -71,5 +146,5 @@ function showTablesInDatabase(res, database) {
         res.write("</table>");
         res.end();
     });
-    connection.end();
+    conexion.end();
 }
