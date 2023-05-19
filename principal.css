@@ -1,0 +1,112 @@
+body {
+    background-color: #BDF;
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+main {
+    width: 820px;
+    max-width: calc(100% - 16px);
+    margin: 16px auto;
+    padding: 24px;
+    background-color: #FFF;
+    border-radius: 16px;
+}
+
+h1 {
+    margin: 0.6em 0em 1em;
+    text-align: center;
+    font-size: 2.4em;
+}
+
+code {
+    padding: 2px 4px;
+    background-color: #E8E8E8;
+    border-radius: 4px;
+    font-family: Consolas, "Courier new", monospace;
+}
+
+#entrada {
+    display: flex;
+    gap: 8px;
+}
+
+#campo {
+    padding: 8px;
+    flex: 1;
+    font-size: 1em;
+    font-family: Consolas, "Courier new", monospace;
+    font-weight: 600;
+    background-color: #E8E8E8;
+    border: 1px solid #999;
+    border-radius: 6px;
+}
+
+#campo {
+    padding: 8px;
+    flex: 1;
+    font-size: 1em;
+    font-family: Consolas, "Courier new", monospace;
+    font-weight: 600;
+    background-color: #E8E8E8;
+    border: 1px solid #999;
+    border-radius: 6px;
+}
+
+#boton-consultar {
+    padding: 8px;
+    background-color: #F4F4F4;
+    border: 1px solid #999;
+    border-radius: 6px;
+}
+
+#boton-consultar:hover {
+    background-color: #E8E8E8;
+}
+
+#boton-consultar:active {
+    background-color: #D4D4D4;
+}
+
+#resultado {
+    min-height: 96px;
+    background-color: #E8E8E8;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+#error {
+    color: #A00;
+    margin: 0;
+    display: none;
+}
+
+#tabla {
+    background-color: #FAFAFA;
+    border-collapse: collapse;
+    overflow: hidden;
+}
+
+#tabla td, #tabla th {
+    border: 1px solid #AAA;
+    padding: 8px;
+}
+
+#pagina-vieja {
+    padding: 16px;
+    margin-top: 16px;
+    border-radius: 12px;
+    background-color: #FCC;
+}
+
+#pagina-vieja a {
+    color: #600;
+}
+
+#pagina-vieja a:hover {
+    color: #A00;
+}
+
+#pagina-vieja a:active {
+    color: #F00;
+}

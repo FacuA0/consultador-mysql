@@ -11,12 +11,8 @@ let options = {
 
 let server = http.createServer((req, res) => {
     let url = new URL(req.url, "http://example.com");
-    let path = url.pathname;
-    if (path == "/") {
-        res.writeHead(200);
-        res.end(fs.readFileSync("principal.html"));
-    }
-    else if (path == "/query") {
+    let ruta = url.pathname;
+    if (ruta == "/query") {
         let consulta = url.searchParams.get("sql");
         if (consulta == null) {
             res.writeHead(400);
@@ -28,12 +24,12 @@ let server = http.createServer((req, res) => {
 
         queryDatabase(res, consulta, database);
     }
-    else if (path.startsWith("/databases")) {
-        if (path == "/databases/" || path == "/databases") {
+    else if (ruta.startsWith("/databases")) {
+        if (ruta == "/databases/" || ruta == "/databases") {
             showDatabases(res);
         }
-        else if (path.startsWith("/databases/")) {
-            let database = path.slice(11);
+        else if (ruta.startsWith("/databases/")) {
+            let database = ruta.slice(11);
             if (database.indexOf("/") != -1) 
                 database = database.slice(0, database.indexOf("/"));
 
@@ -45,8 +41,34 @@ let server = http.createServer((req, res) => {
         }
     }
     else {
-        res.writeHead(404);
-        res.end("Error: URL inválida.")
+        // Actúa como servidor web
+        let documento = ruta;
+
+        if (ruta == "/") {
+            documento = "/principal.html";
+        }
+
+        documento = documento.slice(1);
+        
+        if (!fs.existsSync(documento) || !evaluarAcceso(documento)) {
+            res.writeHead(404);
+            res.end();
+            return;
+        }
+        
+        res.writeHead(200);
+        res.end(fs.readFileSync(documento));
+        
+        function evaluarAcceso(ruta) {
+            if (ruta == "server.js" ||
+                ruta == "package.json" ||
+                ruta == "package-lock.json" ||
+                ruta.startsWith("node_modules")) return false;
+
+            return true;
+        }
+        //res.writeHead(404);
+        //res.end("Error: URL inválida.");
     }
     
 });
@@ -86,8 +108,8 @@ function queryDatabase(res, consulta, database) {
 
         let resultado = {
             ok: true,
-            campos: campos,
-            registros: registros
+            campos,
+            registros
         };
 
         res.writeHead(200, {"Content-Type": "application/json"});
