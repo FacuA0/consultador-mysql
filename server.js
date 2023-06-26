@@ -76,8 +76,8 @@ let server = http.createServer((req, res) => {
 server.listen(9040);
 
 function queryDatabase(res, consulta, database) {
-
     let conexion;
+
     if (database != null) 
         conexion = mysql.createConnection(Object.assign({}, options, {database}));
     else 
@@ -87,38 +87,48 @@ function queryDatabase(res, consulta, database) {
 
     conexion.query(consulta, (error, results, fields) => {
         if (error) {
+            let servidorActivo = error.code == "ECONNREFUSED" ? " - Puede que la base de datos no esté activada." : "";
             let resultado = {
                 ok: false,
-                error: error.toString()
+                error: error.toString() + servidorActivo
             };
 
             res.writeHead(400, {"Content-Type": "application/json"});
             res.end(JSON.stringify(resultado));
             return;
         }
+        
+        let campos = fields ? fields.map(campo => campo.name) : [];
 
-        let campos = fields.map(campo => campo.name);
-        let registros = results.map(registro => {
-            let valores = [];
-            for (clave in registro) {
-                valores[campos.indexOf(clave)] = registro[clave];
-            }
-            return valores;
-        })
-
-        let resultado = {
+        let respuesta = {
             ok: true,
-            campos,
-            registros
+            campos
         };
 
+
+        if (results instanceof Array) {
+            respuesta.registros = results.map(registro => {
+                let valores = [];
+                for (clave in registro) {
+                    valores[campos.indexOf(clave)] = registro[clave];
+                }
+                return valores;
+            });
+        }
+        else {
+            respuesta.resultado = results;
+        }
+        
         res.writeHead(200, {"Content-Type": "application/json"});
-        res.end(JSON.stringify(resultado));
+        res.end(JSON.stringify(respuesta));
     });
 
     conexion.end();
 }
 
+/*
+    FUNCIONES VIEJAS NO SOPORTADAS
+*/
 function showDatabases(res) {
     let conexion = mysql.createConnection(options);
     conexion.connect();

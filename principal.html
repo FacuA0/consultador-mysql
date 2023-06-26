@@ -22,7 +22,7 @@
     
             <p>Resultado: </p>
             <div id="resultado">
-                <p id="error"></p>
+                <p id="mensaje"></p>
                 <table id="tabla"></table>
             </div>
 
@@ -37,7 +37,7 @@
             let inputCampo = document.getElementById("campo");
             let infoDatabase = document.getElementById("info-database");
             let divResultado = document.getElementById("resultado");
-            let resError = document.getElementById("error");
+            let resMensaje = document.getElementById("mensaje");
             let resTabla = document.getElementById("tabla");
 
             function consultar() {  
@@ -49,11 +49,14 @@
                     let htmlDatabase;
 
                     if (database != "") htmlDatabase = "<b>" + database + "</b>";
-                    else htmlDatabase = "&gt;ninguna&lt;";
+                    else htmlDatabase = "&lt;ninguna&gt;";
 
                     infoDatabase.innerHTML = "Base de datos: " + htmlDatabase;
                     return;
                 }
+
+                resTabla.innerHTML = "";
+                resMensaje.style.display = "none";
 
                 // Dirección de consulta. Si hay base de datos seleccionada, incluirla aparte.
                 let direccion = "/query?sql=" + consulta + (database != "" ? "&database=" + database : "");
@@ -62,39 +65,47 @@
                 .then(res => res.json())
                 .then(json => {
                     if (!json.ok) {
-                        resError.textContent = "Error de consulta: " + json.error;
-                        resError.style.display = "block";
-                        resTabla.style.display = "none";
+                        mostrarMensaje("Error de consulta: " + json.error, true);
                         return;
                     }
 
-                    resTabla.innerHTML = "";
-
-                    let tr1 = document.createElement("tr");
-                    for (campo of json.campos) {
-                        let th = document.createElement("th");
-                        th.textContent = campo;
-                        tr1.appendChild(th);
+                    if (json.resultado) {
+                        let res = json.resultado;
+                        mostrarMensaje(`¡Operación exitosa! ${res.message}<br><br>Filas afectadas: ${res.affectedRows}<br>Estado del servidor DB: ${res.serverStatus}<br>Advertencias: ${res.warningCount}`);
                     }
-                    resTabla.appendChild(tr1);
-                    
-                    for (fila of json.registros) {
-                        let tr = document.createElement("tr");
-                        for (valor of fila) {
-                            let td = document.createElement("td");
-                            td.textContent = valor;
-                            tr.appendChild(td);
-                        }
-                        resTabla.appendChild(tr);
+                    else {
+                        rellenarTabla(json.campos, json.registros);
                     }
-                    resTabla.style.display = "table";
-                    resError.style.display = "none";
                 })
                 .catch(err => {
-                    resError.textContent = "Error de conexión: " + err.toString();
-                    resError.style.display = "block";
-                    resTabla.style.display = "none";
+                    mostrarMensaje("Error de conexión: " + err.toString(), true);
                 });
+            }
+
+            function rellenarTabla(campos, registros) {
+                let cabecera = document.createElement("tr");
+                for (campo of campos) {
+                    let th = document.createElement("th");
+                    th.textContent = campo;
+                    cabecera.appendChild(th);
+                }
+                resTabla.appendChild(cabecera);
+                
+                for (fila of registros) {
+                    let tr = document.createElement("tr");
+                    for (valor of fila) {
+                        let td = document.createElement("td");
+                        td.textContent = valor;
+                        tr.appendChild(td);
+                    }
+                    resTabla.appendChild(tr);
+                }
+            }
+
+            function mostrarMensaje(mensaje, error) {
+                resMensaje.innerHTML = mensaje;
+                resMensaje.className = error ? "error" : "";
+                resMensaje.style.display = "block";
             }
         </script>
     </body>

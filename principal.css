@@ -75,10 +75,13 @@ code {
     padding: 16px;
 }
 
-#error {
-    color: #A00;
+#mensaje {
     margin: 0;
     display: none;
+}
+
+.error {
+    color: #A00;
 }
 
 #tabla {
