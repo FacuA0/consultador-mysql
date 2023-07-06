@@ -95,21 +95,21 @@ code {
     padding: 8px;
 }
 
-#pagina-vieja {
+#pagina-prueba {
     padding: 16px;
     margin-top: 16px;
     border-radius: 12px;
-    background-color: #FCC;
+    background-color: #ACF;
 }
 
-#pagina-vieja a {
-    color: #600;
+#pagina-prueba a {
+    color: #005;
 }
 
-#pagina-vieja a:hover {
-    color: #A00;
+#pagina-prueba a:hover {
+    color: #00B;
 }
 
-#pagina-vieja a:active {
-    color: #F00;
+#pagina-prueba a:active {
+    color: #22F;
 }

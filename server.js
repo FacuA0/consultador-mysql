@@ -3,7 +3,7 @@ let process = require("process");
 let fs = require("fs");
 let http = require("http");
 
-let options = {
+let opciones = {
     host: "localhost",
     user: "root",
     password: ""
@@ -12,6 +12,8 @@ let options = {
 let server = http.createServer((req, res) => {
     let url = new URL(req.url, "http://example.com");
     let ruta = url.pathname;
+
+    // API de consultas
     if (ruta == "/query") {
         let consulta = url.searchParams.get("sql");
         if (consulta == null) {
@@ -24,24 +26,27 @@ let server = http.createServer((req, res) => {
 
         queryDatabase(res, consulta, database);
     }
+
+    // Prueba inicial - Genera HTML para mostrar bases de datos y tablas de forma visual
     else if (ruta.startsWith("/databases")) {
         if (ruta == "/databases/" || ruta == "/databases") {
-            showDatabases(res);
+            mostrarDatabases(res);
         }
         else if (ruta.startsWith("/databases/")) {
             let database = ruta.slice(11);
             if (database.indexOf("/") != -1) 
                 database = database.slice(0, database.indexOf("/"));
 
-            showTablesInDatabase(res, database);
+            mostrarTablasEnBase(res, database);
         }
         else {
             res.writeHead(404);
             res.end("Error: Forma incorrecta de acceder a /databases.");
         }
     }
+
+    // Actúa como servidor web
     else {
-        // Actúa como servidor web
         let documento = ruta;
 
         if (ruta == "/") {
@@ -79,18 +84,18 @@ function queryDatabase(res, consulta, database) {
     let conexion;
 
     if (database != null) 
-        conexion = mysql.createConnection(Object.assign({}, options, {database}));
+        conexion = mysql.createConnection(Object.assign({}, opciones, {database}));
     else 
-        conexion = mysql.createConnection(options);
+        conexion = mysql.createConnection(opciones);
 
     conexion.connect();
 
-    conexion.query(consulta, (error, results, fields) => {
+    conexion.query(consulta, (error, resultados, fields) => {
         if (error) {
-            let servidorActivo = error.code == "ECONNREFUSED" ? " - Puede que la base de datos no esté activada." : "";
+            let baseActiva = error.code == "ECONNREFUSED" ? " - Puede que la base de datos no esté activada." : "";
             let resultado = {
                 ok: false,
-                error: error.toString() + servidorActivo
+                error: error.toString() + baseActiva
             };
 
             res.writeHead(400, {"Content-Type": "application/json"});
@@ -106,8 +111,8 @@ function queryDatabase(res, consulta, database) {
         };
 
 
-        if (results instanceof Array) {
-            respuesta.registros = results.map(registro => {
+        if (resultados instanceof Array) {
+            respuesta.registros = resultados.map(registro => {
                 let valores = [];
                 for (clave in registro) {
                     valores[campos.indexOf(clave)] = registro[clave];
@@ -116,7 +121,7 @@ function queryDatabase(res, consulta, database) {
             });
         }
         else {
-            respuesta.resultado = results;
+            respuesta.resultado = resultados;
         }
         
         res.writeHead(200, {"Content-Type": "application/json"});
@@ -127,10 +132,10 @@ function queryDatabase(res, consulta, database) {
 }
 
 /*
-    FUNCIONES VIEJAS NO SOPORTADAS
+    PRUEBAS INICIALES
 */
-function showDatabases(res) {
-    let conexion = mysql.createConnection(options);
+function mostrarDatabases(res) {
+    let conexion = mysql.createConnection(opciones);
     conexion.connect();
     conexion.query("SHOW DATABASES;", (error, results, fields) => {
         if (error) {
@@ -146,8 +151,8 @@ function showDatabases(res) {
                 fieldName = key;
             }
 
-            let field = row[fieldName];
-            res.write("<tr><td><a href='/databases/" + field + "'>" + field + "</a></td></tr>");
+            let database = row[fieldName];
+            res.write("<tr><td><a href='/databases/" + database + "'>" + database + "</a></td></tr>");
         }
         res.write("</table>");
 
@@ -156,10 +161,10 @@ function showDatabases(res) {
     conexion.end();
 }
 
-function showTablesInDatabase(res, database) {
-    let conexion = mysql.createConnection(Object.assign({}, options, {database}));
+function mostrarTablasEnBase(res, database) {
+    let conexion = mysql.createConnection(Object.assign({}, opciones, {database}));
     conexion.connect();
-    conexion.query("SHOW TABLES;", (error, results, fields) => {
+    conexion.query("SHOW TABLES;", (error, resultados, fields) => {
         if (error) {
             console.log("Error while querying.");
             res.end("Error with query.");
@@ -167,13 +172,13 @@ function showTablesInDatabase(res, database) {
         }
 
         res.write("<table border='1'><caption>Tables</caption><tr><th>Tables</th></tr>");
-        for (row of results) {
-            let fieldName;
+        for (row of resultados) {
+            let nombreCampo;
             for (key in row) {
-                fieldName = key;
+                nombreCampo = key;
             }
 
-            res.write("<tr><td>" + row[fieldName] + "</td></tr>");
+            res.write("<tr><td>" + row[nombreCampo] + "</td></tr>");
         }
         res.write("</table>");
         res.end();
