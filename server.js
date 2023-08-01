@@ -45,33 +45,32 @@ let server = http.createServer((req, res) => {
         }
     }
 
-    // Actúa como servidor web
+    // Actúa como servidor web en rutas concretas
     else {
-        let documento = ruta;
+        let documento;
 
-        if (ruta == "/") {
-            documento = "/principal.html";
+        if (ruta == "/nodeMyAdmin" || ruta == "/nodeMyAdmin/") {
+            documento = "nodeMyAdmin/admin.html";
         }
-
-        documento = documento.slice(1);
+        else if (ruta.startsWith("/nodeMyAdmin/")) {
+            documento = ruta.slice(1);
+        }
+        else if (ruta == "/") {
+            documento = "principal/principal.html";
+        }
+        else {
+            documento = "principal" + ruta;
+        }
         
-        if (!fs.existsSync(documento) || !evaluarAcceso(documento)) {
+        if (!fs.existsSync(documento)) {
             res.writeHead(404);
             res.end();
             return;
         }
         
+        let contenido = fs.readFileSync(documento);
         res.writeHead(200);
-        res.end(fs.readFileSync(documento));
-        
-        function evaluarAcceso(ruta) {
-            if (ruta == "server.js" ||
-                ruta == "package.json" ||
-                ruta == "package-lock.json" ||
-                ruta.startsWith("node_modules")) return false;
-
-            return true;
-        }
+        res.end(contenido);
         //res.writeHead(404);
         //res.end("Error: URL inválida.");
     }
