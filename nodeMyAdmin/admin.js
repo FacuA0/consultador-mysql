@@ -18,7 +18,7 @@ async function rellenarTabla() {
         window.location = "?ruta=/"
     }
 
-    let consulta = "", baseDatos = ""
+    let consulta = "", baseDatos = "", enlaces = true
     if (ruta == "/") {
         consulta = "SHOW DATABASES"
     }
@@ -29,7 +29,11 @@ async function rellenarTabla() {
     else {
         baseDatos = partes[1]
         consulta = "SELECT * FROM " + partes[2]
+        enlaces = false
     }
+
+    // Si quedó un segmento final incompleto (tipo /ejemplo/), removerlo
+    if (partes[partes.length - 1] == "") partes.pop()
     
     let respuesta = await fetch("/query?sql=" + encodeURIComponent(consulta) + (baseDatos !== "" ? "&database=" + baseDatos : ""))
     let datos = await respuesta.json()
@@ -59,7 +63,13 @@ async function rellenarTabla() {
         let tr = document.createElement("tr");
         for (let campo of fila) {
             let td = document.createElement("td");
-            td.innerHTML = campo
+
+            if (enlaces) {
+                td.innerHTML = "<a href=\"?ruta=" + partes.join("/") + "/" + campo + "\">" + campo + "</a>"
+            }
+            else {
+                td.textContent = campo
+            }
             tr.appendChild(td)
         }
         tabla.appendChild(tr)
