@@ -105,6 +105,7 @@ code {
     padding: 16px;
     margin-top: 16px;
     border-radius: 12px;
+    border: 2px solid #8AE;
     background-color: #ACF;
 }
 
