@@ -42,43 +42,6 @@ code {
     gap: 8px;
 }
 
-#campo {
-    padding: 8px;
-    flex: 1;
-    font-size: 1em;
-    font-family: Consolas, "Courier new", monospace;
-    font-weight: 600;
-    background-color: #E8E8E8;
-    border: 1px solid #999;
-    border-radius: 6px;
-}
-
-#campo {
-    padding: 8px;
-    flex: 1;
-    font-size: 1em;
-    font-family: Consolas, "Courier new", monospace;
-    font-weight: 600;
-    background-color: #E8E8E8;
-    border: 1px solid #999;
-    border-radius: 6px;
-}
-
-#boton-consultar {
-    padding: 8px;
-    background-color: #F4F4F4;
-    border: 1px solid #999;
-    border-radius: 6px;
-}
-
-#boton-consultar:hover {
-    background-color: #E8E8E8;
-}
-
-#boton-consultar:active {
-    background-color: #D4D4D4;
-}
-
 #resultado {
     min-height: 96px;
     background-color: #E8E8E8;
@@ -91,11 +54,23 @@ code {
     display: none;
 }
 
-.error {
-    color: #A00;
+#ruta {
+    padding-left: 1.5rem;
+}
+
+#elementos {
+    display: none;
+    list-style: none;
+    padding: 0;
+}
+
+#elementos li {
+    border-top: 1px solid #AAA6;
+    padding: 8px;
 }
 
 #tabla {
+    display: none;
     background-color: #FAFAFA;
     border-collapse: collapse;
     overflow: hidden;
