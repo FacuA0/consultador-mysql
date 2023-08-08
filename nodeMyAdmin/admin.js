@@ -8,7 +8,7 @@ async function rellenarDatos() {
     let url = new URL(window.location)
 
     // Redirección a "ruta=/" en caso de no tener parámetro
-    if (!url.searchParams.has("ruta") || url.searchParams.get("ruta") == "") {
+    if (!url.searchParams.has("ruta")) {
         window.location = "?ruta=/"
     }
 
@@ -20,30 +20,33 @@ async function rellenarDatos() {
 
     // Obtener ruta
     let ruta = url.searchParams.get("ruta")
-    let partes = ruta.split("/")
-
-    // Redirección a "ruta=/" en caso de que el parámetro sea inválido 
-    if (partes[0] != "" || partes.length < 2) {
+    
+    // Redirección a "ruta=/" en caso de que el parámetro sea inválido (no comienze o no tenga un slash) 
+    if (!ruta.startsWith("/")) {
         window.location = "?ruta=/"
     }
+    
+    // Dividir en partes y quitar los elementos vacíos
+    let partes = ruta.split("/")
+    partes.shift()
+    if (partes[partes.length - 1] == "") partes.pop()
 
+    textoRuta.textContent = ruta.replaceAll("/", " / ")
+    
     // Armado de consulta SQL
     let consulta = "", baseDatos = "", ponerEnlaces = true
     if (ruta == "/") {
         consulta = "SHOW DATABASES;"
     }
-    else if (partes.length == 2 || (partes.length == 3 && partes[2] == "")) { // "/ejemplo" o "/ejemplo/"
-        baseDatos = partes[1]
+    else if (partes.length == 1) { // "/ejemplo" o "/ejemplo/"
+        baseDatos = partes[0]
         consulta = "SHOW TABLES;"
     }
     else {
-        baseDatos = partes[1]
-        consulta = "SELECT * FROM " + partes[2] + ";"
+        baseDatos = partes[0]
+        consulta = "SELECT * FROM " + partes[1] + ";"
         ponerEnlaces = false
     }
-
-    // Si quedó un segmento final incompleto (como en "/ejemplo/"), removerlo
-    if (partes[partes.length - 1] == "") partes.pop()
 
     // Consultar datos
     let datos = {}
@@ -63,8 +66,6 @@ async function rellenarDatos() {
         error.style.display = "block"
         return
     }
-
-    textoRuta.textContent = ruta.replaceAll("/", " / ")
     
     if (ponerEnlaces) {
         for (let [campo] of datos.registros) {
@@ -75,31 +76,29 @@ async function rellenarDatos() {
         lista.style.display = "block";
     }
     else {
-        // Cabecera de tabla
+        rellenarTabla(datos)
+    }
+}
+
+function rellenarTabla(datos) {
+    // Cabecera de tabla
+    let tr = document.createElement("tr")
+    for (let campo of datos.campos) {
+        let th = document.createElement("th")
+        th.innerHTML = campo
+        tr.appendChild(th)
+    }
+    tabla.appendChild(tr)
+    
+    // Cuerpo de tabla
+    for (let fila of datos.registros) {
         let tr = document.createElement("tr")
-        for (let campo of datos.campos) {
-            let th = document.createElement("th")
-            th.innerHTML = campo
-            tr.appendChild(th)
+        for (let campo of fila) {
+            let td = document.createElement("td")
+            td.textContent = campo
+            tr.appendChild(td)
         }
         tabla.appendChild(tr)
-    
-        // Cuerpo de tabla
-        for (let fila of datos.registros) {
-            let tr = document.createElement("tr")
-            for (let campo of fila) {
-                let td = document.createElement("td")
-    
-                if (ponerEnlaces) {
-                    td.innerHTML = "<a href=\"?ruta=" + partes.join("/") + "/" + campo + "\">" + campo + "</a>"
-                }
-                else {
-                    td.textContent = campo
-                }
-                tr.appendChild(td)
-            }
-            tabla.appendChild(tr)
-        }
-        tabla.style.display = "block";
     }
+    tabla.style.display = "block";
 }
