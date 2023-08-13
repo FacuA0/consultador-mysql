@@ -1,6 +1,14 @@
-let baseDatos = null, tabla = null
+var ruta = "", partes = []
+var tabla, error, lista, textoRuta, botonCrear
 
 window.onload = function() {
+    // Obtener elementos HTML
+    tabla = document.querySelector("#tabla")
+    error = document.querySelector("#error")
+    lista = document.querySelector("#elementos")
+    textoRuta = document.querySelector("#ruta")
+    botonCrear = document.querySelector("#crear")
+
     rellenarDatos()
 }
 
@@ -12,14 +20,8 @@ async function rellenarDatos() {
         window.location = "?ruta=/"
     }
 
-    // Obtener elementos HTML
-    let error = document.querySelector("#error")
-    let lista = document.querySelector("#elementos")
-    let textoRuta = document.querySelector("#ruta")
-    tabla = document.querySelector("#tabla")
-
     // Obtener ruta
-    let ruta = url.searchParams.get("ruta")
+    ruta = url.searchParams.get("ruta")
     
     // Redirección a "ruta=/" en caso de que el parámetro sea inválido (no comienze o no tenga un slash) 
     if (!ruta.startsWith("/")) {
@@ -27,7 +29,7 @@ async function rellenarDatos() {
     }
     
     // Dividir en partes y quitar los elementos vacíos
-    let partes = ruta.split("/")
+    partes = ruta.split("/")
     partes.shift()
     if (partes[partes.length - 1] == "") partes.pop()
 
@@ -59,7 +61,7 @@ async function rellenarDatos() {
         datos = await respuesta.json()
     }
     catch (err) {
-        mostrarError(err, "Hubo un error en la solicitud al servidor:")
+        mostrarError(err.toString(), "Hubo un error en la solicitud al servidor:")
         return
     }
 
@@ -70,21 +72,27 @@ async function rellenarDatos() {
     }
     
     if (ponerEnlaces) {
+        if (partes.length == 0) {
+            botonCrear.innerHTML = "Crear base de datos"
+        }
+        else {
+            botonCrear.innerHTML = "Crear tabla"
+        }
+
         for (let [campo] of datos.registros) {
             let li = document.createElement("li")
 
-            let enlace
             if (partes.length == 0)
-                enlace = "<a href=\"?ruta=/" + campo + "\">" + campo + "</a>"
+                li.innerHTML = "<a href=\"?ruta=/" + campo + "\">" + campo + "</a>"
             else 
-                enlace = "<a href=\"?ruta=/" + partes[0] + "/" + campo + "\">" + campo + "</a>"
-            li.innerHTML = enlace
+                li.innerHTML = "<a href=\"?ruta=/" + partes[0] + "/" + campo + "\">" + campo + "</a>"
 
             lista.appendChild(li)
         }
         lista.style.display = "table";
     }
     else {
+        botonCrear.style.display = "none";
         rellenarTabla(datos)
     }
 }
@@ -112,8 +120,42 @@ function rellenarTabla(datos) {
     tabla.style.display = "block";
 }
 
-function mostrarError(error, texto) {
-    console.error(error)
-    error.innerHTML = texto + "<br><br>" + error
-    error.style.display = block
+function mostrarError(err, texto) {
+    console.error(err)
+    error.innerHTML = texto + "<br><br>" + err
+    error.style.display = "block"
+}
+
+async function mostrarDialogoCrear() {
+    // document.querySelector("#dialogo-fondo").style.display = "block"
+
+    // Sólo crear bases de datos; ignorar tablas
+    if (partes.length = "") return;
+
+    let nombre = prompt("Nombre de la base de datos:")
+
+    // El usuario canceló la acción o el nombre es inválido
+    if (nombre == null || nombre == "") return
+    
+    try {
+        let respuesta = await fetch("/query?sql=CREATE DATABASE " + nombre + ";")
+        let datos = await respuesta.json()
+
+        if (datos.ok) {
+            alert("Base de datos creada")
+            window.location = window.location
+        }
+        else {
+            mostrarError(datos.error, "Error al crear la base de datos:")
+            alert("No se pudo crear la base de datos.")
+        }
+    }
+    catch (err) {
+        mostrarError(err.toString(), "Hubo un error al hacer la consulta de creación:")
+        return
+    }
+}
+
+function crear() {
+
 }

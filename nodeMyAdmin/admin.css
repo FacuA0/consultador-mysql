@@ -4,6 +4,28 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+#dialogo-fondo {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #0006;
+}
+
+#dialogo {
+    padding: 16px;
+    background-color: #FFF;
+    border-radius: 12px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 32px);
+    max-width: 360px;
+}
+
 #contenido {
     width: 820px;
     max-width: calc(100% - 16px);
