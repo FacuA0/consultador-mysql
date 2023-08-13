@@ -15,8 +15,8 @@ async function rellenarDatos() {
     // Obtener elementos HTML
     let error = document.querySelector("#error")
     let lista = document.querySelector("#elementos")
-    let tabla = document.querySelector("#tabla")
     let textoRuta = document.querySelector("#ruta")
+    tabla = document.querySelector("#tabla")
 
     // Obtener ruta
     let ruta = url.searchParams.get("ruta")
@@ -30,6 +30,10 @@ async function rellenarDatos() {
     let partes = ruta.split("/")
     partes.shift()
     if (partes[partes.length - 1] == "") partes.pop()
+
+    if (partes.length > 2) {
+        window.location = "?ruta=/" + partes.slice(0, 2).join("/")
+    }
 
     textoRuta.textContent = ruta.replaceAll("/", " / ")
     
@@ -55,25 +59,30 @@ async function rellenarDatos() {
         datos = await respuesta.json()
     }
     catch (err) {
-        console.error(err)
-        error.innerHTML = "Hubo un error en la solicitud al servidor:<br><br>" + err.toString()
-        error.style.display = "block"
+        mostrarError(err, "Hubo un error en la solicitud al servidor:")
+        return
     }
 
     // Algo no salió bien con la consulta
     if (!datos.ok) {
-        error.innerHTML = "Hubo un error en la consulta SQL:<br><br>" + datos.error
-        error.style.display = "block"
+        mostrarError(datos.error, "Hubo un error en la consulta SQL:")
         return
     }
     
     if (ponerEnlaces) {
         for (let [campo] of datos.registros) {
             let li = document.createElement("li")
-            li.innerHTML = "<a href=\"?ruta=" + partes.join("/") + "/" + campo + "\">" + campo + "</a>"
+
+            let enlace
+            if (partes.length == 0)
+                enlace = "<a href=\"?ruta=/" + campo + "\">" + campo + "</a>"
+            else 
+                enlace = "<a href=\"?ruta=/" + partes[0] + "/" + campo + "\">" + campo + "</a>"
+            li.innerHTML = enlace
+
             lista.appendChild(li)
         }
-        lista.style.display = "block";
+        lista.style.display = "table";
     }
     else {
         rellenarTabla(datos)
@@ -101,4 +110,10 @@ function rellenarTabla(datos) {
         tabla.appendChild(tr)
     }
     tabla.style.display = "block";
+}
+
+function mostrarError(error, texto) {
+    console.error(error)
+    error.innerHTML = texto + "<br><br>" + error
+    error.style.display = block
 }

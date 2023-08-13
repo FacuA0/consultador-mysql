@@ -65,19 +65,24 @@ code {
 #elementos {
     display: none;
     list-style: none;
+    width: 100%;
     padding: 0;
 }
 
 #elementos li {
     border-top: 1px solid #AAA6;
-    padding: 8px;
+    padding: 8px 12px;
+}
+
+#elementos li:last-child {
+    border-bottom: 1px solid #AAA6;
 }
 
 #tabla {
     display: none;
     background-color: #FAFAFA;
     border-collapse: collapse;
-    overflow: hidden;
+    overflow-x: auto;
 }
 
 #tabla td, #tabla th {
