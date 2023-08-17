@@ -83,7 +83,7 @@ async function rellenarDatos() {
             let li = document.createElement("li")
 
             if (partes.length == 0)
-                li.innerHTML = "<a href=\"?ruta=/" + campo + "\">" + campo + "</a>"
+                li.innerHTML = "<a href=\"?ruta=/" + campo + "\">" + campo + "</a> <a style=\"float: right;\" onclick=\"mostrarDialogoBorrar('" + campo + "')\">[eliminar]</a>"
             else 
                 li.innerHTML = "<a href=\"?ruta=/" + partes[0] + "/" + campo + "\">" + campo + "</a>"
 
@@ -130,7 +130,7 @@ async function mostrarDialogoCrear() {
     // document.querySelector("#dialogo-fondo").style.display = "block"
 
     // Sólo crear bases de datos; ignorar tablas
-    if (partes.length = "") return;
+    if (partes.length != 0) return
 
     let nombre = prompt("Nombre de la base de datos:")
 
@@ -142,7 +142,7 @@ async function mostrarDialogoCrear() {
         let datos = await respuesta.json()
 
         if (datos.ok) {
-            alert("Base de datos creada")
+            alert("Base de datos creada.")
             window.location = window.location
         }
         else {
@@ -152,6 +152,33 @@ async function mostrarDialogoCrear() {
     }
     catch (err) {
         mostrarError(err.toString(), "Hubo un error al hacer la consulta de creación:")
+        return
+    }
+}
+
+async function mostrarDialogoBorrar(baseDatos) {
+    // Sólo borrar bases de datos; ignorar tablas
+    if (partes.length != 0) return
+
+    // Confirmar que el usuario quiera borrar la base de datos
+    let confirmar = confirm("¿Estás seguro de que deseas eliminar la base de datos?")
+    if (!confirmar) return
+
+    try {
+        let respuesta = await fetch("/query?sql=DROP DATABASE " + baseDatos + ";")
+        let datos = await respuesta.json()
+
+        if (datos.ok) {
+            alert("Base de datos eliminada exitosamente.")
+            window.location = window.location
+        }
+        else {
+            mostrarError(datos.error, "Error al eliminar la base de datos:")
+            alert("No se pudo eliminar la base de datos.")
+        }
+    }
+    catch (err) {
+        mostrarError(err.toString(), "Hubo un error al hacer la consulta de borrado:")
         return
     }
 }

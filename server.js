@@ -77,7 +77,9 @@ let server = http.createServer((req, res) => {
     
 });
 
-server.listen(9040);
+server.listen(9040, function () {
+    console.log("Escuchando en el puerto 9040.")
+});
 
 function queryDatabase(res, consulta, database) {
     let conexion;
