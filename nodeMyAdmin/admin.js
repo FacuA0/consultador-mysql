@@ -1,5 +1,6 @@
 var ruta = "", partes = []
 var tabla, error, lista, textoTitulo, textoRuta, botonCrear
+var fondoDialogo, tituloDialogo, labelDialogo, inputDialogo, aceptarDialogo
 
 window.onload = function() {
     // Obtener elementos HTML
@@ -9,6 +10,12 @@ window.onload = function() {
     textoTitulo = document.querySelector("#titulo")
     textoRuta = document.querySelector("#ruta")
     botonCrear = document.querySelector("#crear")
+
+    fondoDialogo = document.querySelector("#dialogo-fondo")
+    tituloDialogo = document.querySelector("#dialogo-titulo")
+    labelDialogo = document.querySelector("#dialogo-label")
+    inputDialogo = document.querySelector("#dialogo-input")
+    aceptarDialogo = document.querySelector("#dialogo-aceptar")
     
     botonCrear.style.display = "none"
 
@@ -79,6 +86,8 @@ async function rellenarDatos() {
         if (partes.length == 0) {
             textoTitulo.innerHTML = "Bases de datos"
             botonCrear.innerHTML = "Crear base de datos"
+            botonCrear.style.display = "block"
+            botonCrear.onclick = dialogoCrearBase
         }
         else {
             textoTitulo.innerHTML = "Tablas en " + baseDatos
@@ -89,14 +98,13 @@ async function rellenarDatos() {
             let li = document.createElement("li")
 
             if (partes.length == 0)
-                li.innerHTML = "<a href=\"?ruta=/" + campo + "\">" + campo + "</a> <a style=\"float: right;\" onclick=\"mostrarDialogoBorrar('" + campo + "')\">[eliminar]</a>"
+                li.innerHTML = "<a href=\"?ruta=/" + campo + "\">" + campo + "</a> <a class=\"li-eliminar\" onclick=\"mostrarDialogoBorrar('" + campo + "')\">[eliminar]</a>"
             else 
                 li.innerHTML = "<a href=\"?ruta=/" + baseDatos + "/" + campo + "\">" + campo + "</a>"
 
             lista.appendChild(li)
         }
-        lista.style.display = "table";
-        botonCrear.style.display = "block";
+        lista.style.display = "table"
     }
     else {
         textoTitulo.innerHTML = "Tabla " + tabla
@@ -133,13 +141,17 @@ function mostrarError(err, texto) {
     error.style.display = "block"
 }
 
-async function mostrarDialogoCrear() {
-    // document.querySelector("#dialogo-fondo").style.display = "block"
+function dialogoCrearBase() {
+    fondoDialogo.style.display = "block"
+    tituloDialogo.innerHTML = "Crear base de datos"
+    labelDialogo.innerHTML = "Introduce el nombre de la nueva base de datos"
+    inputDialogo.placeholder = "Nombre"
+    aceptarDialogo.onclick = crearBaseDatos
+}
 
-    // Sólo crear bases de datos; ignorar tablas
-    if (partes.length != 0) return
-
-    let nombre = prompt("Nombre de la base de datos:")
+async function crearBaseDatos() {
+    let nombre = inputDialogo.value
+    inputDialogo.value = ""
 
     // El usuario canceló la acción o el nombre es inválido
     if (nombre == null || nombre == "") return
@@ -188,6 +200,10 @@ async function mostrarDialogoBorrar(baseDatos) {
         mostrarError(err.toString(), "Hubo un error al hacer la consulta de borrado:")
         return
     }
+}
+
+function cerrarDialogo() {
+    fondoDialogo.style.display = "none"
 }
 
 function crear() {

@@ -4,6 +4,10 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
+/*
+ * Diálogo
+ */
+
 #dialogo-fondo {
     display: none;
     position: fixed;
@@ -11,19 +15,34 @@ body {
     left: 0;
     width: 100vw;
     height: 100vh;
-    background-color: #0006;
+    background-color: #0004;
 }
 
 #dialogo {
+    width: calc(100% - 32px);
+    max-width: 360px;
     padding: 16px;
-    background-color: #FFF;
-    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
     position: absolute;
     top: 50%;
     left: 50%;
+    border-radius: 12px;
+    background-color: #FFF;
     transform: translate(-50%, -50%);
-    width: calc(100% - 32px);
-    max-width: 360px;
+}
+
+#dialogo-botones {
+    margin-top: 8px;
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 8px;
+}
+
+#dialogo-input {
+    padding: 4px;
+    font-size: 1em;
+    margin-top: 8px;
 }
 
 #contenido {
@@ -43,6 +62,10 @@ main {
 header {
     padding: 16px;
 }
+
+/*
+ * Títulos
+ */
 
 h1, h2, h3, h4, h5, h6 {
     margin: 0.6em 0em 0.6em;
@@ -65,6 +88,41 @@ code {
     font-family: Consolas, "Courier new", monospace;
 }
 
+/*
+ * Enlaces
+ */
+
+a {
+    color: #15B;
+}
+
+a:hover {
+    color: #2AC;
+}
+
+a:active {
+    color: #028;
+}
+
+/*
+ * Botones-enlace de eliminar
+ */
+
+a.li-eliminar {
+    text-decoration: underline;
+    cursor: pointer;
+    float: right;
+    color: #B00;
+}
+
+a.li-eliminar:hover {
+    color: #F44;
+}
+
+a.li-eliminar:active {
+    color: #800;
+}
+
 #entrada {
     display: flex;
     gap: 8px;
@@ -77,14 +135,13 @@ code {
     padding: 16px;
 }
 
-#mensaje {
-    margin: 0;
-    display: none;
-}
-
 #ruta {
     padding-left: 1rem;
 }
+
+/*
+ * Estilos de lista
+ */
 
 #elementos {
     display: none;
@@ -101,6 +158,10 @@ code {
 #elementos li:last-child {
     border-bottom: 1px solid #AAA6;
 }
+
+/*
+ * Estilos de tabla
+ */
 
 #tabla {
     display: none;
@@ -121,24 +182,4 @@ code {
     border-radius: 12px;
     border: 2px solid #F88;
     background-color: #FAA;
-}
-
-#pagina-prueba {
-    padding: 16px;
-    margin-top: 16px;
-    border-radius: 12px;
-    border: 2px solid #8AE;
-    background-color: #ACF;
-}
-
-#pagina-prueba a {
-    color: #005;
-}
-
-#pagina-prueba a:hover {
-    color: #00B;
-}
-
-#pagina-prueba a:active {
-    color: #22F;
 }

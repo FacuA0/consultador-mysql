@@ -11,12 +11,12 @@
     <body>
         <div id="dialogo-fondo">
             <div id="dialogo">
-                <h3>Crear</h3>
-                <label for="nombre">Crear</label>
-                <input type="text" name="nombre">
-                <div>
-                    <button>Cancelar</button>
-                    <button>Aceptar</button>
+                <h3 id="dialogo-titulo">Crear</h3>
+                <label for="nombre" id="dialogo-label">Crear</label>
+                <input type="text" name="nombre" id="dialogo-input">
+                <div id="dialogo-botones">
+                    <button id="dialogo-aceptar">Aceptar</button>
+                    <button onclick="cerrarDialogo()">Cancelar</button>
                 </div>
             </div>
         </div>
@@ -30,7 +30,7 @@
 
                 <table id="tabla"></table>
                 <ul id="elementos"></ul>
-                <button id="crear" onclick="mostrarDialogoCrear()"></button>
+                <button id="crear"></button>
                 <div id="error"></div>
             </main>
         </div>
