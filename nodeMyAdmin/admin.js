@@ -1,13 +1,16 @@
 var ruta = "", partes = []
-var tabla, error, lista, textoRuta, botonCrear
+var tabla, error, lista, textoTitulo, textoRuta, botonCrear
 
 window.onload = function() {
     // Obtener elementos HTML
     tabla = document.querySelector("#tabla")
     error = document.querySelector("#error")
     lista = document.querySelector("#elementos")
+    textoTitulo = document.querySelector("#titulo")
     textoRuta = document.querySelector("#ruta")
     botonCrear = document.querySelector("#crear")
+    
+    botonCrear.style.display = "none"
 
     rellenarDatos()
 }
@@ -40,7 +43,7 @@ async function rellenarDatos() {
     textoRuta.textContent = ruta.replaceAll("/", " / ")
     
     // Armado de consulta SQL
-    let consulta = "", baseDatos = "", ponerEnlaces = true
+    let consulta = "", baseDatos = "", tabla = "", datosTabla = true
     if (ruta == "/") {
         consulta = "SHOW DATABASES;"
     }
@@ -50,8 +53,9 @@ async function rellenarDatos() {
     }
     else {
         baseDatos = partes[0]
-        consulta = "SELECT * FROM " + partes[1] + ";"
-        ponerEnlaces = false
+        tabla = partes[1]
+        consulta = "SELECT * FROM " + tabla + ";"
+        datosTabla = false
     }
 
     // Consultar datos
@@ -71,11 +75,13 @@ async function rellenarDatos() {
         return
     }
     
-    if (ponerEnlaces) {
+    if (datosTabla) {
         if (partes.length == 0) {
+            textoTitulo.innerHTML = "Bases de datos"
             botonCrear.innerHTML = "Crear base de datos"
         }
         else {
+            textoTitulo.innerHTML = "Tablas en " + baseDatos
             botonCrear.innerHTML = "Crear tabla"
         }
 
@@ -85,14 +91,15 @@ async function rellenarDatos() {
             if (partes.length == 0)
                 li.innerHTML = "<a href=\"?ruta=/" + campo + "\">" + campo + "</a> <a style=\"float: right;\" onclick=\"mostrarDialogoBorrar('" + campo + "')\">[eliminar]</a>"
             else 
-                li.innerHTML = "<a href=\"?ruta=/" + partes[0] + "/" + campo + "\">" + campo + "</a>"
+                li.innerHTML = "<a href=\"?ruta=/" + baseDatos + "/" + campo + "\">" + campo + "</a>"
 
             lista.appendChild(li)
         }
         lista.style.display = "table";
+        botonCrear.style.display = "block";
     }
     else {
-        botonCrear.style.display = "none";
+        textoTitulo.innerHTML = "Tabla " + tabla
         rellenarTabla(datos)
     }
 }
