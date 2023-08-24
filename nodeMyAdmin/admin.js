@@ -104,7 +104,7 @@ async function rellenarDatos() {
 
             lista.appendChild(li)
         }
-        lista.style.display = "table"
+        lista.style.display = "block"
     }
     else {
         textoTitulo.innerHTML = "Tabla " + tabla
@@ -132,7 +132,7 @@ function rellenarTabla(datos) {
         }
         tabla.appendChild(tr)
     }
-    tabla.style.display = "block";
+    tabla.style.display = "table";
 }
 
 function mostrarError(err, texto) {
@@ -145,7 +145,6 @@ function dialogoCrearBase() {
     fondoDialogo.style.display = "block"
     tituloDialogo.innerHTML = "Crear base de datos"
     labelDialogo.innerHTML = "Introduce el nombre de la nueva base de datos"
-    inputDialogo.placeholder = "Nombre"
     aceptarDialogo.onclick = crearBaseDatos
 }
 
@@ -153,8 +152,8 @@ async function crearBaseDatos() {
     let nombre = inputDialogo.value
     inputDialogo.value = ""
 
-    // El usuario canceló la acción o el nombre es inválido
-    if (nombre == null || nombre == "") return
+    // El nombre es inválido
+    if (nombre == "") return
     
     try {
         let respuesta = await fetch("/query?sql=CREATE DATABASE " + nombre + ";")
